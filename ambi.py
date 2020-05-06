@@ -9,8 +9,7 @@ db = {
 def menu():
     if db['username'] is None:
         setup()
-    print(f"Welcome {db['username']}!")
-    print('Enter h for help')
+    print(f"Welcome {db['username']}! Enter h for help.")
     while True:
         cmd = input('Enter command: ')
         commands = {
@@ -83,7 +82,7 @@ def subjects_add():
     db['subjects'].append(sub)
 
 def setup():
-    db['username'] = ('Welcome to ambi, what is your name? ')
+    db['username'] = input('Welcome to ambi, what is your name? ')
 
 if __name__ == '__main__':
     menu()
