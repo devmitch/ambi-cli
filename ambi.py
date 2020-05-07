@@ -2,13 +2,15 @@ db = {
     'username': None,
     'subjects': [],
     'backlog': [],
-    'today': []
+    'today': [],
+    'done': []
 }
 
 def table_output():
     cols = []
-    cols.append({'title': 'backlog', 'data': backlog_bundle()})
-    cols.append({'title': 'today', 'data': today_bundle()})
+    cols.append({'title': 'backlog', 'data': bundle('backlog')})
+    cols.append({'title': 'today', 'data': bundle('today')})
+    cols.append({'title': 'done (last 10)', 'data': bundle('done')})
     top = 0
     for col in cols:
         if len(col['data']) > 0:
@@ -43,8 +45,6 @@ def menu():
         cmd = input('Enter command: ')
         commands = {
             'h': help,
-            #'b': backlog_display,
-            #'t': today_display,
             'n': backlog_add,
             'r': backlog_remove,
             'a': today_add,
@@ -63,8 +63,6 @@ def help():
     help_str = '''
     h: displays this
     e: exits application
-    b: lists all tasks in backlog
-    t: lists all tasks for today
     n: adds a task to the backlog
     r: removes a task from the backlog
     a: adds a task from the backlog to today
@@ -74,24 +72,34 @@ def help():
     '''
     print(help_str)
 
-def backlog_bundle():
-    '''
-    Bundle up backlog entries as a list of strings to be displayed in table
-    '''
+
+def bundle(collection):
     items = []
     count = 1
-    db['backlog'].sort(key=lambda x: x['priority'], reverse=True)
-    for task in db['backlog']:
+    if collection != 'done':
+        db[collection].sort(key=lambda x: x['priority'], reverse=True)
+    for task in db[collection]:
         items.append(f"{count}. {(task['priority']*'*')[0:3] + (3 - task['priority'])*' '} | {task['subject']} | {task['type']} | {task['desc']} ")
         count += 1
+        if collection == 'done' and count >= 10:
+            break
+
     return items
 
 def backlog_add():
     priority = int(input('Priority? (1-3): '))
-    subject = input(f"Subject? ({db['subjects']}): ")
+
+    sub_list = ''
+    for i in range(0, len(db['subjects'])):
+        sub_list += f"[{i+1}] {db['subjects'][i]}, "
+    sub_list = sub_list[:-2]
+    subject = db['subjects'][int(input(f"Subject? ({sub_list}): "))-1]
+
     task_type_input = input('Type? (study, revision, homework): ')
     task_type = task_type_input +  (8-len(task_type_input))*' '
+
     desc = input('Description?: ')
+
     db['backlog'].append(
         {
             'priority': priority,
@@ -115,20 +123,9 @@ def today_add():
 
 def today_done():
     num = int(input('Todays task num completed?: '))
+    db['done'].insert(0, db['today'][num-1])
     del db['today'][num-1]
     print('Completed task for today! Returning to menu...')
-
-def today_bundle():
-    '''
-    Bundle up today entries as a list of strings to be displayed in table
-    '''
-    items = []
-    count = 1
-    db['today'].sort(key=lambda x: x['priority'], reverse=True)
-    for task in db['today']:
-        items.append(f"{count}. {(task['priority']*'*')[0:3] + (3 - task['priority'])*' '} | {task['subject']} | {task['type']} | {task['desc']} ")
-        count += 1
-    return items
 
 def subjects_list():
     if not db['subjects']:
