@@ -2,8 +2,7 @@ db = {
     'username': None,
     'subjects': [],
     'backlog': [],
-    'today': [],
-    'done': []
+    'today': []
 }
 
 def table_output():
@@ -31,19 +30,10 @@ def table_output():
             print('\n+' + '-'*(top-2) + '+')
         else:
             print('')
+
     if sum(len(col['data']) for col in cols) > 0:
         print('+' + '-'*(top-2) + '+')
 
-
-    '''
-    for col in cols:
-        if len(col['data']) > 0:
-            m_width = len(max(col['data'], key=len))
-            print('+' + '-'*(m_width) + '+')
-            for item in col['data']:
-                print(f"|{item}{' '*(m_width-len(item))}|")
-            print('+' + '-'*(m_width) + '+')
-    '''
 def menu():
     if db['username'] is None:
         setup()
@@ -90,14 +80,14 @@ def backlog_bundle():
     '''
     items = []
     count = 1
+    db['backlog'].sort(key=lambda x: x['priority'], reverse=True)
     for task in db['backlog']:
-        items.append(f"{count}. {task['priority']} | {task['subject']} | {task['type']} | {task['desc']} ")
+        items.append(f"{count}. {(task['priority']*'*')[0:3] + (3 - task['priority'])*' '} | {task['subject']} | {task['type']} | {task['desc']} ")
         count += 1
     return items
 
 def backlog_add():
-    priority_input = input('Priority? (1-3): ')
-    priority = (int(priority_input)*'*')[0:3] + (3 - int(priority_input))*' '
+    priority = int(input('Priority? (1-3): '))
     subject = input(f"Subject? ({db['subjects']}): ")
     task_type_input = input('Type? (study, revision, homework): ')
     task_type = task_type_input +  (8-len(task_type_input))*' '
@@ -134,8 +124,9 @@ def today_bundle():
     '''
     items = []
     count = 1
+    db['today'].sort(key=lambda x: x['priority'], reverse=True)
     for task in db['today']:
-        items.append(f"{count}. {task['priority']} | {task['subject']} | {task['type']} | {task['desc']} ")
+        items.append(f"{count}. {(task['priority']*'*')[0:3] + (3 - task['priority'])*' '} | {task['subject']} | {task['type']} | {task['desc']} ")
         count += 1
     return items
 
