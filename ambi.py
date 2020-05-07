@@ -111,8 +111,9 @@ def backlog_add():
     sub_list = sub_list[:-2]
     subject = db['subjects'][int(input(f"Subject? ({sub_list}): "))-1]
 
-    task_type_input = input('Type? (study, revision, homework): ')
-    task_type = task_type_input +  (8-len(task_type_input))*' '
+    types = ['study', 'revision', 'homework', 'exam']
+    task_type_input = int(input('Type? ([1] study, [2] revision, [3] homework, [4] exam): '))
+    task_type = types[task_type_input-1] +  (8-len(types[task_type_input-1]))*' '
 
     desc = input('Description?: ')
 
