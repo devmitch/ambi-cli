@@ -1,3 +1,5 @@
+import pickle
+
 db = {
     'username': None,
     'subjects': [],
@@ -6,11 +8,7 @@ db = {
     'done': []
 }
 
-def table_output():
-    cols = []
-    cols.append({'title': 'backlog', 'data': bundle('backlog')})
-    cols.append({'title': 'today', 'data': bundle('today')})
-    cols.append({'title': 'done (last 10)', 'data': bundle('done')})
+def table_output(cols):
     top = 0
     for col in cols:
         if len(col['data']) > 0:
@@ -41,7 +39,13 @@ def menu():
         setup()
     print(f"Welcome {db['username']}! Enter h for help.")
     while True:
-        table_output()
+        save()
+
+        cols = []
+        cols.append({'title': 'backlog', 'data': bundle('backlog')})
+        cols.append({'title': 'today', 'data': bundle('today')})
+        cols.append({'title': 'done (last 10)', 'data': bundle('done')})
+        table_output(cols)
         cmd = input('Enter command: ')
         commands = {
             'h': help,
@@ -50,11 +54,15 @@ def menu():
             'a': today_add,
             'd': today_done,
             's': subjects_list,
-            'sa': subjects_add
+            'sa': subjects_add,
+            'p': purge
         }
         if cmd == 'e':
             break
-        commands[cmd]()
+        elif cmd not in commands:
+            print('Command not found, try h for help')
+        else:
+            commands[cmd]()
 
     print('Goodbye!')
 
@@ -69,9 +77,9 @@ def help():
     d: sets a task for today as 'done'
     s: lists subjects
     sa: adds a subject
+    p: purges database
     '''
     print(help_str)
-
 
 def bundle(collection):
     items = []
@@ -89,6 +97,9 @@ def bundle(collection):
 def backlog_add():
     priority = int(input('Priority? (1-3): '))
 
+    if len(db['subjects']) == 0:
+        print('No subjects found. Add one using the command sa')
+        return
     sub_list = ''
     for i in range(0, len(db['subjects'])):
         sub_list += f"[{i+1}] {db['subjects'][i]}, "
@@ -108,24 +119,20 @@ def backlog_add():
             'desc': desc
         }
     )
-    print('Added new task to backlog! Returning to menu...')
 
 def backlog_remove():
     num = int(input('Number to remove?: '))
     del db['backlog'][num-1]
-    print('Removed task from backlog! Returning to menu...')
 
 def today_add():
     num = int(input('Number to move from backlog to today?: '))
     db['today'].append(db['backlog'][num-1])
     del db['backlog'][num-1]
-    print('Moved task to today! Returning to menu...')
 
 def today_done():
     num = int(input('Todays task num completed?: '))
     db['done'].insert(0, db['today'][num-1])
     del db['today'][num-1]
-    print('Completed task for today! Returning to menu...')
 
 def subjects_list():
     if not db['subjects']:
@@ -140,5 +147,36 @@ def subjects_add():
 def setup():
     db['username'] = input('Welcome to ambi, what is your name? ')
 
+DB_FILE_NAME = 'database.pickle'
+
+def load():
+    try:
+        global db
+        db = pickle.load(open(DB_FILE_NAME, 'rb'))
+    except FileNotFoundError:
+
+        save()
+
+def save():
+    with open(DB_FILE_NAME, 'wb') as file:
+        pickle.dump(db, file)
+
+def purge():
+    response = input('This will purge the whole database. Continue? (y/n): ')
+    if response == 'y':
+        global db
+        db = {
+            'username': None,
+            'subjects': [],
+            'backlog': [],
+            'today': [],
+            'done': []
+        }
+        save()
+        setup()
+    else:
+        print('Aborted, returning to menu.')
+
 if __name__ == '__main__':
+    load()
     menu()
