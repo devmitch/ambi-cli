@@ -14,9 +14,9 @@ def table_output():
     for col in cols:
         if len(col['data']) > 0:
             top += len(max(col['data'], key=len)) + 3
-    if top != 0:
+    if top != 0 and sum(len(col['data']) for col in cols) > 0:
         print('+' + '-'*(top-2) + '+')
-    #print(cols)
+
     for row in range(-1, max(len(col['data']) for col in cols)):
         for col in range(0, len(cols)):
             if row == -1 and len(cols[col]['data']) > 0:
@@ -24,11 +24,15 @@ def table_output():
                 print(' '*(max(len(item) for item in cols[col]['data']) - len(cols[col]['title'])) + '|', end='')
             elif row < len(cols[col]['data']) and row != -1:
                 print('| ' + cols[col]['data'][row] + ' '*(max(len(entry) for entry in cols[col]['data']) - len(cols[col]['data'][row])) + '|', end='')
-        if row == -1:
+            elif len(cols[col]['data']) > 0:
+                print('| ' + ' '*(max(len(entry) for entry in cols[col]['data'])) + '|', end='')
+
+        if row == -1 and sum(len(col['data']) for col in cols) > 0:
             print('\n+' + '-'*(top-2) + '+')
         else:
             print('')
-    print('+' + '-'*(top-2) + '+')
+    if sum(len(col['data']) for col in cols) > 0:
+        print('+' + '-'*(top-2) + '+')
 
 
     '''
@@ -87,14 +91,16 @@ def backlog_bundle():
     items = []
     count = 1
     for task in db['backlog']:
-        items.append(f"{count}. {task['priority']} | {task['subject']} | {task['type']} | {task['desc']}")
+        items.append(f"{count}. {task['priority']} | {task['subject']} | {task['type']} | {task['desc']} ")
         count += 1
     return items
 
 def backlog_add():
-    priority = input('Priority? (*, **, ***): ')
+    priority_input = input('Priority? (1-3): ')
+    priority = (int(priority_input)*'*')[0:3] + (3 - int(priority_input))*' '
     subject = input(f"Subject? ({db['subjects']}): ")
-    task_type = input('Type? (study, revision, homework): ')
+    task_type_input = input('Type? (study, revision, homework): ')
+    task_type = task_type_input +  (8-len(task_type_input))*' '
     desc = input('Description?: ')
     db['backlog'].append(
         {
@@ -129,7 +135,7 @@ def today_bundle():
     items = []
     count = 1
     for task in db['today']:
-        items.append(f"{count}. {task['priority']} | {task['subject']} | {task['type']} | {task['desc']}")
+        items.append(f"{count}. {task['priority']} | {task['subject']} | {task['type']} | {task['desc']} ")
         count += 1
     return items
 
