@@ -1,4 +1,4 @@
-import pickle
+import pickle, os
 
 db = {
     'username': None,
@@ -49,6 +49,7 @@ def menu():
         cmd = input('Enter command: ')
         commands = {
             'h': help,
+            'c': clear_terminal,
             'n': backlog_add,
             'r': backlog_remove,
             'a': today_add,
@@ -70,6 +71,7 @@ def help():
     print('current commands:')
     help_str = '''
     h: displays this
+    c: clears terminal
     e: exits application
     n: adds a task to the backlog
     r: removes a task from the backlog
@@ -80,6 +82,9 @@ def help():
     p: purges database
     '''
     print(help_str)
+
+def clear_terminal():
+    os.system('clear')
 
 def bundle(collection):
     items = []
