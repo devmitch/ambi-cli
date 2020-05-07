@@ -4,7 +4,7 @@ Scheduling application for studying.
 ## Requirements ##
 - pickle
 
-## running
+## Usage
 Inside the directory run:
 
 ``python3 ambi.py``
