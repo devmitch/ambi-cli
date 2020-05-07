@@ -115,7 +115,7 @@ def backlog_add():
     task_type_input = int(input('Type? ([1] study, [2] revision, [3] homework, [4] exam): '))
     task_type = types[task_type_input-1] +  (8-len(types[task_type_input-1]))*' '
 
-    desc = input('Description?: ')
+    desc = input('Concise description? (subject to terminal width): ')
 
     db['backlog'].append(
         {
