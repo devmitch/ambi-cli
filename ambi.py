@@ -1,4 +1,5 @@
-import pickle, os
+import os
+import pickle
 
 db = {
     'username': None,
